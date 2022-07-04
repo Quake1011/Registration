@@ -108,6 +108,7 @@ public Action cmd_cb(int client, const char[] command, int argc)
     {
         FormatEx(gBuffer, sizeof(gBuffer), "%t", "auth_ph", PREFIX);
         PrintToChat(client, gBuffer);               //    {1:s}      {1}Авторизуйтесь - \"/auth <password>\"
+        return Plugin_Handled;
     }
     return Plugin_Continue;
 }
