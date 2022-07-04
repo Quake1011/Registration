@@ -3,42 +3,61 @@
 	"error_db_con_ph"
 	{
 		"#format"	"{1:s},{2:s}"
-		"ru"	"{1}Ошибка подключения к базе данных: {2}"
+		"ru"	"{1}РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…: {2}"
 		"en"	"{1}Failure connecting to database: {2}"
 	}
 	
 	"reg_ph"
 	{
 		"#format"	"{1:s}"
-		"ru"	"{1}Зарегистрируйтесь - \"/reg <password>\""
+		"ru"	"{1}Р—Р°СЂРµРіРёСЃС‚СЂРёСЂСѓР№С‚РµСЃСЊ - \"/reg <password>\""
 		"en"	"{1}Register - \"/reg <password>\""
 	}
 	
 	"auth_ph"
 	{
 		"#format"	"{1:s}"
-		"ru"	"{1}Авторизуйтесь - \"/auth <password>\""
+		"ru"	"{1}РђРІС‚РѕСЂРёР·СѓР№С‚РµСЃСЊ - \"/auth <password>\""
 		"en"	"{1}Login - \"/auth <password>\""
 	}
 	
 	"reg_yet_ph"
 	{
 		"#format"	"{1:s}"
-		"ru"	"{1}Вы уже зарегистрированы. Введите \"/auth <password>\" для авторизации"
+		"ru"	"{1}Р’С‹ СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅС‹. Р’РІРµРґРёС‚Рµ \"/auth <password>\" РґР»СЏ Р°РІС‚РѕСЂРёР·Р°С†РёРё"
 		"en"	"{1}You are is registered yet. Type \"/auth <password>\" for login"
 	}
 	
 	"auth_success_ph"
 	{
 		"#format"	"{1:s}"
-		"ru"	"{1}Авторизация успешно пройдена!"
+		"ru"	"{1}РђРІС‚РѕСЂРёР·Р°С†РёСЏ СѓСЃРїРµС€РЅРѕ РїСЂРѕР№РґРµРЅР°!"
 		"en"	"{1}Successfully loged!"
 	}
 	
 	"invalid_pass_ph"
 	{
 		"#format"	"{1:s},{2:i},{3:i}"
-		"ru"	"{1}Неправильный пароль!\nОсталось {2} попыток. Использовав все - вы будете забанены на {3} минут"
+		"ru"	"{1}РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РїР°СЂРѕР»СЊ!\nРћСЃС‚Р°Р»РѕСЃСЊ {2} РїРѕРїС‹С‚РѕРє. РСЃРїРѕР»СЊР·РѕРІР°РІ РІСЃРµ - РІС‹ Р±СѓРґРµС‚Рµ Р·Р°Р±Р°РЅРµРЅС‹ РЅР° {3} РјРёРЅСѓС‚"
 		"en"	"{1}Invalid password!\nRemain {2} retries. After using everything, you will be banned for {3} minutes"
+	}
+	
+	"password_less_digits"
+	{
+		"#format"	"{1:s},{2:i}"
+		"ru"	"{1}Р’С‹ РІРІРµР»Рё РјРµРЅСЊС€Рµ {2} СЃРёРјРІРѕР»РѕРІ РґР»СЏ РїР°СЂРѕР»СЏ"
+		"en"	"{1}You are types less {2} digits for password"
+	}
+	"before_auth"
+	{
+		"#format"	"{1:s}"
+		"ru"	"{1}РЎРЅР°С‡Р°Р»Р° РЅСѓР¶РЅРѕ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊСЃСЏ"
+		"en"	"{1}Before you should to register"
+	}
+	"reg_succ"
+	{
+		"#format"	"{1:s}"
+		"ru"	"{1}Р’С‹ СѓСЃРїРµС€РЅРѕ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°Р»РёСЃСЊ"
+		"en"	"{1}You are successfully reged"
 	}
 }
