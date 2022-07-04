@@ -5,12 +5,15 @@
 #define TIMEBAN 5
 #define TABLENAME "Registation"
 #define RETRIES 3
+#define PREFIX "[QUAKEAUTH] "
 
 bool    
-    bClientIsRegged[MAXPLAYERS+1] = {false, ...},
-    bClientIsAuthed[MAXPLAYERS+1] = {false, ...};
+    bClientIsRegged[MAXPLAYERS+1],
+    bClientIsAuthed[MAXPLAYERS+1];
 
 int iRetries[MAXPLAYERS+1] = {RETRIES, ...};
+
+Handle hClientTimerSwitchTeam[MAXPLAYERS+1]={INVALID_HANDLE, ...};
 
 Database gDb;
 
@@ -32,7 +35,7 @@ public void OnPluginStart()
     RegConsoleCmd("sm_auth", AuthClientCallBack, "Authentication command");
 }
 
-public void OnClientPostAdminCheck(client)
+public void OnClientPostAdminCheck(int client)
 {
     char sQuery[512], auth[20];
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
@@ -40,13 +43,31 @@ public void OnClientPostAdminCheck(client)
     DBResultSet result = SQL_Query(gDb, sQuery, sizeof(sQuery));
     iRetries[client] = result.FetchInt(0);
     delete result;
+
+    hClientTimerSwitchTeam[client] = CreateTimer(0.1, TimerCallBack, client, TIMER_REPEAT);
 }
 
-public void OnClientDisconnect(client)
+public Action TimerCallBack(Handle hTimer, int client)
+{
+    if(!bClientIsRegged[client] || !bClientIsAuthed[client])
+    {
+        ChangeClientTeam(client, 1);
+    }
+    else
+    {
+        KillTimer(hClientTimerSwitchTeam[client]);
+        hClientTimerSwitchTeam[client] = null;
+    }
+    return Plugin_Continue;
+}
+
+public void OnClientDisconnect(int client)
 {
     iRetries[client] = RETRIES;
-    bClientIsRegged[client] = false,
+    bClientIsRegged[client] = false;
     bClientIsAuthed[client] = false;
+    KillTimer(hClientTimerSwitchTeam[client]);
+    hClientTimerSwitchTeam[client] = null;
 }
 
 public void DataBaseConnectCB(Database db, const char[] error, any data)
@@ -54,7 +75,7 @@ public void DataBaseConnectCB(Database db, const char[] error, any data)
     if(db == null || error[0])
     {
         LogError(error);
-        SetFailState("Ошибка подключения к базе данных: %s", error);
+        SetFailState("%sОшибка подключения к базе данных: %s",PREFIX, error);
         return;
     }
     gDb = db;
@@ -74,17 +95,17 @@ public Action cmd_cb(int client, const char[] command, int argc)
 
     if(!bClientIsRegged[client]) 
     {
-        PrintToChat(client, "Зарегистрируйтесь - \"/reg <password>\"");
+        PrintToChat(client, "%sЗарегистрируйтесь - \"/reg <password>\"", PREFIX);
         return Plugin_Handled;
     }
     else if(!bClientIsAuthed[client])
     {
-        PrintToChat(client, "Авторизуйтесь - \"/auth <password>\"");
+        PrintToChat(client, "%sАвторизуйтесь - \"/auth <password>\"", PREFIX);
     }
     return Plugin_Continue;
 }
 
-public bool GetClientReg(client)
+public bool GetClientReg(int client)
 {
     char sQuery[512], auth[20];
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
@@ -111,7 +132,7 @@ public Action RegClientCallBack(int client, int args)
         FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `%s` (`steam`, `password`, `name`, `retries`) VALUES ('%s', '%s', '%s', '%i')", TABLENAME, auth, sOutput, name, RETRIES);
         SQL_Query(gDb, sQuery, sizeof(sQuery));
     }
-    else PrintToChat(client, "Вы уже зарегистрированы. Введите \"/auth <password>\" для авторизации");
+    else PrintToChat(client, "%sВы уже зарегистрированы. Введите \"/auth <password>\" для авторизации", PREFIX);
     return Plugin_Continue;
 }
 
@@ -126,7 +147,7 @@ public Action AuthClientCallBack(int client, int args)
     if(result.HasResults)
     {
         bClientIsAuthed[client] = true;
-        PrintToChat(client, "Авторизация успешно пройдена!");
+        PrintToChat(client, "%sАвторизация успешно пройдена!",PREFIX);
     }
 
     else
@@ -134,8 +155,7 @@ public Action AuthClientCallBack(int client, int args)
         iRetries[client]--;
         FormatEx(sQuery, sizeof(sQuery), "UPDATE `%s` SET `retries`='%i' WHERE `steam`='%s'", TABLENAME, iRetries[client], auth);
         SQL_Query(gDb, sQuery, sizeof(sQuery));
-        PrintToChat(client, "Неправильный пароль!");
-        PrintToChat(client, "Осталось %i попыток. Использовав все - вы будете забанены на %i минут", iRetries[client], TIMEBAN);
+        PrintToChat(client, "%sНеправильный пароль!\nОсталось %i попыток. Использовав все - вы будете забанены на %i минут",PREFIX, iRetries[client], TIMEBAN);
     }
     
     if(iRetries[client] == 0)
