@@ -13,6 +13,8 @@ bool
 
 int iRetries[MAXPLAYERS+1] = {RETRIES, ...};
 
+char gBuffer[256];
+
 Handle hClientTimerSwitchTeam[MAXPLAYERS+1]={INVALID_HANDLE, ...};
 
 Database gDb;
@@ -33,6 +35,8 @@ public void OnPluginStart()
     AddCommandListener(cmd_cb, "jointeam");
     RegConsoleCmd("sm_reg", RegClientCallBack, "Registation command");
     RegConsoleCmd("sm_auth", AuthClientCallBack, "Authentication command");
+
+    LoadTranslations("auth.phrases.txt")
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -75,7 +79,8 @@ public void DataBaseConnectCB(Database db, const char[] error, any data)
     if(db == null || error[0])
     {
         LogError(error);
-        SetFailState("%sОшибка подключения к базе данных: %s",PREFIX, error);
+        FormatEx(gBuffer, sizeof(gBuffer), "%t","error_db_con_ph",PREFIX, error);               //    {1:s},{2:s}      {1}Ошибка подключения к базе данных: {2}
+        SetFailState(gBuffer);
         return;
     }
     gDb = db;
@@ -95,12 +100,14 @@ public Action cmd_cb(int client, const char[] command, int argc)
 
     if(!bClientIsRegged[client]) 
     {
-        PrintToChat(client, "%sЗарегистрируйтесь - \"/reg <password>\"", PREFIX);
+        FormatEx(gBuffer, sizeof(gBuffer), "%t", "reg_ph", PREFIX);
+        PrintToChat(client, gBuffer);               //    {1:s}      {1}Зарегистрируйтесь - \"/reg <password>\"
         return Plugin_Handled;
     }
     else if(!bClientIsAuthed[client])
     {
-        PrintToChat(client, "%sАвторизуйтесь - \"/auth <password>\"", PREFIX);
+        FormatEx(gBuffer, sizeof(gBuffer), "%t", "auth_ph", PREFIX);
+        PrintToChat(client, gBuffer);               //    {1:s}      {1}Авторизуйтесь - \"/auth <password>\"
     }
     return Plugin_Continue;
 }
@@ -132,7 +139,11 @@ public Action RegClientCallBack(int client, int args)
         FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `%s` (`steam`, `password`, `name`, `retries`) VALUES ('%s', '%s', '%s', '%i')", TABLENAME, auth, sOutput, name, RETRIES);
         SQL_Query(gDb, sQuery, sizeof(sQuery));
     }
-    else PrintToChat(client, "%sВы уже зарегистрированы. Введите \"/auth <password>\" для авторизации", PREFIX);
+    else 
+    {
+        FormatEx(gBuffer, sizeof(gBuffer), "%t", "reg_yet_ph", PREFIX);
+        PrintToChat(client, gBuffer);               //    {1:s}      {1}Вы уже зарегистрированы. Введите \"/auth <password>\" для авторизации
+    }
     return Plugin_Continue;
 }
 
@@ -147,7 +158,8 @@ public Action AuthClientCallBack(int client, int args)
     if(result.HasResults)
     {
         bClientIsAuthed[client] = true;
-        PrintToChat(client, "%sАвторизация успешно пройдена!",PREFIX);
+        FormatEx(gBuffer, sizeof(gBuffer), "%t", "auth_success_ph", PREFIX);
+        PrintToChat(client, gBuffer);               //    {1:s}      {1}Авторизация успешно пройдена!
     }
 
     else
@@ -155,7 +167,8 @@ public Action AuthClientCallBack(int client, int args)
         iRetries[client]--;
         FormatEx(sQuery, sizeof(sQuery), "UPDATE `%s` SET `retries`='%i' WHERE `steam`='%s'", TABLENAME, iRetries[client], auth);
         SQL_Query(gDb, sQuery, sizeof(sQuery));
-        PrintToChat(client, "%sНеправильный пароль!\nОсталось %i попыток. Использовав все - вы будете забанены на %i минут",PREFIX, iRetries[client], TIMEBAN);
+        FormatEx(gBuffer, sizeof(gBuffer), "%t", "invalid_pass_ph", PREFIX, iRetries[client], TIMEBAN);
+        PrintToChat(client, gBuffer);               //    {1:s},{2:i},{3:i}      {1}Неправильный пароль!\nОсталось {2} попыток. Использовав все - вы будете забанены на {3} минут
     }
     
     if(iRetries[client] == 0)
