@@ -46,13 +46,13 @@ public void OnPluginStart()
 
     char error[256];
     gDb = SQL_Connect(TABLENAME, true, error, sizeof(error));
-    #if defined DEBUG
+    #if defined DEBUG == 1
     LogMessage("%sConnecting to Database", PREFIX);
     #endif
 
     if(gDb == INVALID_HANDLE)
     {
-        #if defined DEBUG
+        #if defined DEBUG == 1
         LogMessage("%sHUETA KAKAYATo", PREFIX);
         #endif
         LogError(error);
@@ -61,7 +61,7 @@ public void OnPluginStart()
         return;
     }
 
-    #if defined DEBUG
+    #if defined DEBUG == 1
     LogMessage("%sThe connection to the database has been successfully established!", PREFIX);
     #endif
 
@@ -71,14 +71,14 @@ public void OnPluginStart()
     if(MYSQL) 
     {
         CreateTable(mysql);
-        #if defined DEBUG
+        #if defined DEBUG == 1
         LogMessage("%sMYSQL driver found successfully.", PREFIX);
         #endif
     }
     else 
     {
         CreateTable(sqlite);
-        #if defined DEBUG
+        #if defined DEBUG == 1
         LogMessage("%sSQLite driver found successfully.", PREFIX);
         #endif
     }
@@ -107,7 +107,7 @@ public void CreateTable(int driver)
 
     SQL_TQuery(gDb, SQL_TQueryCallBack, sQuery);
 
-    #if defined DEBUG
+    #if defined DEBUG == 1
     LogMessage("%sTables have been created.", PREFIX);
     #endif
 }
@@ -152,13 +152,13 @@ public Action TimerCallBack(Handle hTimer, int client)
 
 public Action cmd_cb(int client, const char[] command, int argc)
 {
-    #if defined DEBUG
+    #if defined DEBUG == 1
     LogMessage("%sPlayer %i tries to select a team", PREFIX, client);
     #endif
     if(!bClientIsAuthed[client]) bClientIsRegged[client] = GetClientReg(client);
     else 
     {
-        #if defined DEBUG
+        #if defined DEBUG == 1
         LogMessage("%sEnter %i the login has already been completed", PREFIX, client);
         #endif
         PrintToChatAll("bClientIsAuthed[client]=%b\nbClientIsRegged[client]=%b",bClientIsAuthed[client],bClientIsRegged[client])
@@ -198,7 +198,7 @@ public bool GetClientReg(int client)
     {
         if(result.HasResults)
         {
-            #if defined DEBUG
+            #if defined DEBUG == 1
             LogMessage("%sPlayer %i is %s", PREFIX, client, result.HasResults ? "registered" : "not registered");
             #endif
             delete result;
@@ -215,7 +215,7 @@ public void SQL_TQueryCallBack(Handle owner, Handle hndl, const char[] error, an
 
 public Action RegClientCallBack(int client, int args)
 {
-    #if defined DEBUG
+    #if defined DEBUG == 1
     LogMessage("%sPlayer %i is trying to register", PREFIX, client);
     #endif
     if(!bClientIsRegged[client])
@@ -239,7 +239,7 @@ public Action RegClientCallBack(int client, int args)
 
             SQL_TQuery(gDb, SQL_TQueryCallBack, sQuery);
         
-            #if defined DEBUG
+            #if defined DEBUG == 1
             LogMessage("%sPlayer %i is registered, the data is entered into the database", PREFIX, client);
             #endif
             bClientIsRegged[client] = true;
@@ -248,7 +248,7 @@ public Action RegClientCallBack(int client, int args)
         else
         {
             PrintToChat(client, "%t", "password_less_digits",PREFIX, MIN);
-            #if defined DEBUG
+            #if defined DEBUG == 1
             LogMessage("%sPlayer %i is typed less %i digits of password", PREFIX, client, MIN);
             #endif
         }
@@ -257,7 +257,7 @@ public Action RegClientCallBack(int client, int args)
     {
         FormatEx(gBuffer, sizeof(gBuffer), "%t", "reg_yet_ph", PREFIX);
         PrintToChat(client, gBuffer);
-        #if defined DEBUG
+        #if defined DEBUG == 1
         LogMessage("%sPlayer %i is trying to register, but is already registered", PREFIX, client);
         #endif
     }
@@ -273,7 +273,7 @@ public Action AuthClientCallBack(int client, int args)
         if(strlen(sArg)>=MIN)
         {
             MD5String(sArg, sOutput, sizeof(sOutput));
-            #if defined DEBUG
+            #if defined DEBUG == 1
             LogMessage("%sPlayer %i is trying to log in", PREFIX, client);
             #endif
             GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
@@ -281,7 +281,7 @@ public Action AuthClientCallBack(int client, int args)
             
             DBResultSet result = SQL_Query(gDb, sQuery);
 
-            #if defined DEBUG
+            #if defined DEBUG == 1
             LogMessage("%sChecking the hash of the entered player data %i", PREFIX, client);
             #endif
             if(result.HasResults)
@@ -291,19 +291,19 @@ public Action AuthClientCallBack(int client, int args)
                     bClientIsAuthed[client] = true;
                     FormatEx(gBuffer, sizeof(gBuffer), "%t", "auth_success_ph", PREFIX);
                     PrintToChat(client, gBuffer);
-                    #if defined DEBUG
+                    #if defined DEBUG == 1
                     LogMessage("%sPlayer %i has successfully logged in", PREFIX, client);
                     #endif
                 }
                 else if(result.RowCount > 1)
                 {
-                    #if defined DEBUG
+                    #if defined DEBUG == 1
                     LogMessage("%sMatches found", PREFIX);
                     #endif
                 }
                 else
                 {
-                    #if defined DEBUG
+                    #if defined DEBUG == 1
                     LogMessage("%sMatches not found", PREFIX);
                     #endif
                 }
@@ -318,7 +318,7 @@ public Action AuthClientCallBack(int client, int args)
             
                 FormatEx(gBuffer, sizeof(gBuffer), "%t", "invalid_pass_ph", PREFIX, iRetries[client], TIMEBAN);
                 PrintToChat(client, gBuffer);
-                #if defined DEBUG
+                #if defined DEBUG == 1
                 LogMessage("%sPlayer %i entered the wrong password %i times", PREFIX, client,RETRIES-iRetries[client]);
                 #endif
             }
@@ -327,7 +327,7 @@ public Action AuthClientCallBack(int client, int args)
             {
                 iRetries[client] = RETRIES;
                 BanClient(client, TIMEBAN, BANFLAG_AUTHID, "INVALID PASSWORD", "INVALID PASSWORD");
-                #if defined DEBUG
+                #if defined DEBUG == 1
                 LogMessage("%sPlayer %i banned for incorrect data entry", PREFIX, client);
                 #endif
             }
@@ -336,7 +336,7 @@ public Action AuthClientCallBack(int client, int args)
         else
         {
             PrintToChat(client, "%t", "password_less_digits",PREFIX, MIN);
-            #if defined DEBUG
+            #if defined DEBUG == 1
             LogMessage("%sPlayer %i is typed less %i digits of password", PREFIX, client, MIN);
             #endif
         }
@@ -344,7 +344,7 @@ public Action AuthClientCallBack(int client, int args)
     else 
     {
         PrintToChat(client, "%t", "before_auth",PREFIX);
-        #if defined DEBUG
+        #if defined DEBUG == 1
         LogMessage("%sPlayer %i non-registered and trying auths", PREFIX, client);
         #endif
     }
